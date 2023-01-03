@@ -10,6 +10,7 @@ except:
 
 gamesizex = 800
 gamesizey = 600
+endgame = False
 lastkey = None
 screen = pygame.display.set_mode((gamesizex, gamesizey))
 
@@ -33,6 +34,11 @@ while running:
     screen.fill((50, 50, 70))
     for event in pygame.event.get():
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_x:
+                endgame = False
+                tankas.taikinys()
+                tankas.ugnis()
+                tankas.score = 0
             if event.key == pygame.K_SPACE:
                 if busena == "Laukia":
                     busena = "Issauta"
@@ -54,7 +60,7 @@ while running:
         if event.type == pygame.KEYUP:
             if event.key == lastkey:
                 lastkey = None
-        if event.type == pygame.QUIT:
+        if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             running = False
 
     tankas.stepx = -0.1 if lastkey == pygame.K_a else 0.1 if lastkey == pygame.K_d else 0
@@ -68,9 +74,6 @@ while running:
             busena = "Laukia"
 
     tankas.koordinates()
-    screen.blit(tankas.pozicija, (tankas.x, tankas.y))
-    screen.blit(tekstas.render("Your score: " + str(tankas.score), True, (145, 135, 225)), (2, 2))
-    screen.blit(tekstas.render("Highscore: " + str(highscore), True, (5, 205, 205)), (2, 30))
 
     if tankas.boom():
         busena = "Laukia"
@@ -78,31 +81,27 @@ while running:
         hit.play()
         tankas.taikinys()
         tankas.score += 1
-    screen.blit(enemy, (tankas.enemyx, tankas.enemyy))
 
     tankas.ugnisx += tankas.ugnisstepx
     tankas.ugnisy += tankas.ugnisstepy
 
     if tankas.ugnisx < 0 or tankas.ugnisy < 0 or tankas.ugnisx > gamesizex or tankas.ugnisy > gamesizey:
         tankas.ugnis()
-    dist = math.sqrt(math.pow(tankas.x - tankas.ugnisx + 24, 2) + math.pow(tankas.y - tankas.ugnisy + 24, 2))
-    if dist < 32 or tankas.enemyx>1000:
-        tankas.enemyx = 2000
-        tankas.enemyy = 2000
-        tankas.ugnisx = 2000
-        tankas.ugnisy = 2000
-        tankas.ugnisstepx = 0
-        tankas.ugnisstepy = 0
-        if tankas.score > highscore:
+    dist = math.sqrt(math.pow(tankas.x - tankas.ugnisx + 25, 2) + math.pow(tankas.y - tankas.ugnisy + 25, 2))
+    if dist < 34:
+        endgame = True
+        if tankas.score > highscore and highscore != tankas.score:
             with open("rezultatai.pkl", "wb") as file:
                 pickle.dump(tankas.score, file)
                 highscore = tankas.score
+    if endgame:
         screen.blit(tekstas2.render("GAME OVER", True, (165, 205, 25)), (220, 240))
+        screen.blit(tekstas.render("Press x to play again", True, (165, 205, 25)), (280, 340))
 
     screen.blit(tankas.pozicija, (tankas.x, tankas.y))
     screen.blit(tekstas.render("Your score: " + str(tankas.score), True, (145, 135, 225)), (2, 2))
     screen.blit(tekstas.render("Highscore: " + str(highscore), True, (5, 205, 205)), (2, 30))
-    screen.blit(fire, (tankas.ugnisx, tankas.ugnisy))
-
+    if endgame == False:
+        screen.blit(enemy, (tankas.enemyx, tankas.enemyy))
+        screen.blit(fire, (tankas.ugnisx, tankas.ugnisy))
     pygame.display.update()
-
