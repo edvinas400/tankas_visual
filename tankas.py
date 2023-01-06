@@ -95,8 +95,8 @@ class Tankas():
         vector_y = self.y - self.enemyy
         # Calculate the angle between the enemy and the object
         angle = math.atan2(vector_y, vector_x)
-        self.ugnisstepx = math.cos(angle) * 0.25
-        self.ugnisstepy = math.sin(angle) * 0.25
+        self.ugnisstepx = math.cos(angle) * 0.21
+        self.ugnisstepy = math.sin(angle) * 0.21
 
     def boom(self):
         dist = math.sqrt(math.pow(self.enemyx - self.kulkax + 24, 2) + math.pow(self.enemyy - self.kulkay + 25, 2))
